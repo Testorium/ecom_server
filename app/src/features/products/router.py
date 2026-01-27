@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from src.routers.config import api_prefix_config
 
 from .deps import ProductServiceDep
 from .schemas import (
@@ -6,13 +7,10 @@ from .schemas import (
     ProductCreate,
 )
 
-product_router = APIRouter()
+router = APIRouter(prefix=api_prefix_config.v1.products, tags=["Products"])
 
 
-@product_router.post(
-    "/products",
-    # response_model=Product,
-)
+@router.post("/", response_model=Product)
 async def create_product(
     product: ProductCreate,
     service: ProductServiceDep,

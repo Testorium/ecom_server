@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from src.database import close_db_pool, init_db_pool
-from src.features.product.router import product_router
+from src.routers import main_router
 
 
 @asynccontextmanager
@@ -14,4 +14,4 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(product_router)
+app.include_router(main_router)
