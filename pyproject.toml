@@ -1,0 +1,26 @@
+[project]
+name = "ecom-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "fastapi>=0.128.0",
+    "gunicorn>=24.1.1",
+    "loguru>=0.7.3",
+    "pogo-migrate>=0.4.1",
+    "pyhumps>=3.8.0",
+    "python-dotenv>=1.2.1",
+    "uvicorn>=0.40.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.3.0",
+]
+
+[tool.pogo]
+migrations = './migrations'
+database_config = "postgres://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
+schema = 'public'
