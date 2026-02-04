@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Optional
 
-from pydantic import Field, PositiveFloat, PositiveInt
+from pydantic import Field, PositiveInt
 from src.schema import BaseSchema
 
 
@@ -11,9 +12,11 @@ class Product(BaseSchema):
 
     id: int
     name: str
-    price: float
-    quantity: int
-    description: Optional[str]
+    description: Optional[str] = None
+    summary: Optional[str] = None
+    category_id: int
+    is_deleted: bool
+    created_at: datetime
 
 
 class ProductCreate(BaseSchema):
@@ -21,10 +24,10 @@ class ProductCreate(BaseSchema):
     Represents the required fields to create a new product.
     """
 
-    name: str
-    price: PositiveFloat
-    quantity: PositiveInt
-    description: Optional[str] = Field(None, max_length=255)
+    name: str = Field(max_length=255)
+    description: Optional[str] = None
+    summary: Optional[str] = Field(None, max_length=255)
+    category_id: int
 
 
 class ProductUpdate(BaseSchema):
@@ -33,10 +36,9 @@ class ProductUpdate(BaseSchema):
     Allows partial updates.
     """
 
-    name: Optional[str] = None
-    price: Optional[PositiveFloat] = None
-    quantity: Optional[PositiveInt] = None
-    description: Optional[str] = Field(None, max_length=255)
+    name: Optional[str] = Field(None, max_length=255)
+    description: Optional[str] = None
+    summary: Optional[str] = Field(None, max_length=255)
 
 
 class ProductStockUpdate(BaseSchema):

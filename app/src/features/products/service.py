@@ -1,25 +1,26 @@
-from typing import Optional, cast
+from typing import List, Optional
 
+from src.service.base import BaseService
 from src.service.exceptions import (
-    DEFAULT_ERROR_MESSAGES,
     ErrorMessages,
+    NotFoundError,
     handle_asyncpg_exceptions,
 )
 
 from .error_messages import PRODUCT_ERROR_MESSAGES
 from .repo import ProductRepository
-from .schemas import Product, ProductCreate
+from .schemas import Product, ProductCreate, ProductUpdate
 
 
-class ProductService:
-    error_messages: ErrorMessages = PRODUCT_ERROR_MESSAGES
+class ProductService(BaseService):
+    error_messages = PRODUCT_ERROR_MESSAGES
 
     def __init__(self, repo: ProductRepository):
         self.repo = repo
 
     async def create(
         self,
-        product: ProductCreate,
+        data: ProductCreate,
         error_messages: Optional[ErrorMessages | None] = None,
     ) -> Product:
         error_messages = self._get_error_messages(
@@ -28,39 +29,90 @@ class ProductService:
         )
 
         with handle_asyncpg_exceptions(error_messages=error_messages):
-            return await self.repo.create(product)
+            return await self.repo.create(data)
 
-    # async def list_products(self) -> List[Product]:
-    #     return await self.repo.get_all()
-
-    # async def get_product(self, product_id: int) -> Product:
-    #     product = await self.repo.get_by_id(product_id)
-    #     if not product:
-    #         raise HTTPException(404, "Product not found")
-    #     return product
-
-    # async def update_product(self, product_id: int, product: ProductUpdate) -> Product:
-    #     updated = await self.repo.update(product_id, product)
-    #     if not updated:
-    #         raise HTTPException(404, "Product not found")
-    #     return updated
-
-    # async def delete_product(self, product_id: int) -> None:
-    #     deleted = await self.repo.delete(product_id)
-    #     if not deleted:
-    #         raise HTTPException(404, "Product not found")
-
-    @staticmethod
-    def _get_error_messages(
+    async def get_all(
+        self,
         error_messages: Optional[ErrorMessages | None] = None,
-        default_messages: Optional[ErrorMessages | None] = None,
-    ) -> ErrorMessages:
-        messages = cast("ErrorMessages", dict(DEFAULT_ERROR_MESSAGES))
+    ) -> List[Product]:
+        error_messages = self._get_error_messages(
+            error_messages=error_messages,
+            default_messages=self.error_messages,
+        )
+        with handle_asyncpg_exceptions(error_messages=error_messages):
+            return await self.repo.get_all()
 
-        if default_messages:
-            messages.update(default_messages)
+    async def get_one_by_id(
+        self,
+        product_id: int,
+        error_messages: Optional[ErrorMessages | None] = None,
+    ) -> Product:
+        error_messages = self._get_error_messages(
+            error_messages=error_messages,
+            default_messages=self.error_messages,
+        )
+        with handle_asyncpg_exceptions(error_messages=error_messages):
+            product = await self.repo.get_by_id(product_id=product_id)
 
-        if error_messages:
-            messages.update(error_messages)
+            if not product:
+                raise NotFoundError
 
-        return messages
+            return product
+
+    async def delete_one_by_id(
+        self,
+        product_id: int,
+        error_messages: Optional[ErrorMessages | None] = None,
+    ) -> None:
+        error_messages = self._get_error_messages(
+            error_messages=error_messages,
+            default_messages=self.error_messages,
+        )
+
+        with handle_asyncpg_exceptions(error_messages=error_messages):
+            result = await self.repo.delete_one_by_id(product_id=product_id)
+
+            if not result:
+                raise NotFoundError
+
+            return None
+
+    async def soft_delete_one_by_id(
+        self,
+        product_id: int,
+        error_messages: Optional[ErrorMessages | None] = None,
+    ):
+        error_messages = self._get_error_messages(
+            error_messages=error_messages,
+            default_messages=self.error_messages,
+        )
+
+        with handle_asyncpg_exceptions(error_messages=error_messages):
+            result = await self.repo.soft_delete_one_by_id(product_id=product_id)
+
+            if not result:
+                raise NotFoundError
+
+            return None
+
+    async def update_one_by_id(
+        self,
+        product_id: int,
+        data: ProductUpdate,
+        error_messages: Optional[ErrorMessages | None] = None,
+    ):
+        error_messages = self._get_error_messages(
+            error_messages=error_messages,
+            default_messages=self.error_messages,
+        )
+
+        with handle_asyncpg_exceptions(error_messages=error_messages):
+            result = await self.repo.update_one_by_id(
+                product_id=product_id,
+                data=data,
+            )
+
+            if not result:
+                raise NotFoundError
+
+            return result
