@@ -11,7 +11,10 @@ class CategoryRepository:
     def __init__(self, db_pool: Pool):
         self.db_pool = db_pool
 
-    async def create(self, category: CategoryCreate) -> Category:
+    async def create(
+        self,
+        data: CategoryCreate,
+    ) -> Category:
         query = f"""
             INSERT INTO {self.table_name} (name, description, parent_id)
             VALUES ($1, $2, $3)
@@ -21,9 +24,9 @@ class CategoryRepository:
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(
                 query,
-                category.name,
-                category.description,
-                category.parent_id,
+                data.name,
+                data.description,
+                data.parent_id,
             )
         return Category(**dict(row))
 
@@ -45,10 +48,10 @@ class CategoryRepository:
 
         return Category(**dict(row)) if row else None
 
-    async def update(
+    async def update_one_by_id(
         self,
         category_id: int,
-        category: CategoryUpdate,
+        data: CategoryUpdate,
     ) -> Optional[Category]:
         query = f"""
         UPDATE {self.table_name}
@@ -61,9 +64,9 @@ class CategoryRepository:
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(
                 query,
-                category.name,
-                category.description,
-                category.parent_id,
+                data.name,
+                data.description,
+                data.parent_id,
                 category_id,
             )
         return Category(**dict(row)) if row else None

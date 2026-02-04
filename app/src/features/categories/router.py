@@ -18,14 +18,14 @@ async def get_all_categories(
 
 @router.post("/", response_model=Category)
 async def create_new_category(
-    category: CategoryCreate,
+    data: CategoryCreate,
     service: CategoryServiceDep,
 ):
-    return await service.create(category=category)
+    return await service.create(data=data)
 
 
 @router.get("/{category_id}")
-async def get_category_by_id(
+async def get_one_category_by_id(
     category_id: int,
     service: CategoryServiceDep,
 ):
@@ -33,14 +33,14 @@ async def get_category_by_id(
 
 
 @router.patch("/{category_id}")
-async def update_category_by_id(
+async def update_one_category_by_id(
     category_id: int,
-    category: CategoryUpdate,
+    data: CategoryUpdate,
     service: CategoryServiceDep,
 ):
-    return await service.update(
+    return await service.update_one_by_id(
         category_id=category_id,
-        category=category,
+        data=data,
     )
 
 

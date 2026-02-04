@@ -20,7 +20,7 @@ class CategoryService(BaseService):
 
     async def create(
         self,
-        category: CategoryCreate,
+        data: CategoryCreate,
         error_messages: Optional[ErrorMessages | None] = None,
     ) -> Category:
         error_messages = self._get_error_messages(
@@ -29,7 +29,7 @@ class CategoryService(BaseService):
         )
 
         with handle_asyncpg_exceptions(error_messages=error_messages):
-            return await self.repo.create(category=category)
+            return await self.repo.create(data=data)
 
     async def get_one_by_id(
         self,
@@ -63,10 +63,10 @@ class CategoryService(BaseService):
             [category.model_dump() for category in categories]
         )
 
-    async def update(
+    async def update_one_by_id(
         self,
         category_id: int,
-        category: CategoryUpdate,
+        data: CategoryUpdate,
         error_messages: Optional[ErrorMessages | None] = None,
     ) -> Category:
         error_messages = self._get_error_messages(
@@ -75,9 +75,9 @@ class CategoryService(BaseService):
         )
 
         with handle_asyncpg_exceptions(error_messages=error_messages):
-            return await self.repo.update(
+            return await self.repo.update_one_by_id(
                 category_id=category_id,
-                category=category,
+                data=data,
             )
 
     @staticmethod
