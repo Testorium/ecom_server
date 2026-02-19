@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from asyncpg import Pool
+from asyncpg import Pool, Record
 
 from .schemas import Product, ProductCreate, ProductUpdate
 
@@ -10,6 +10,10 @@ class ProductRepository:
 
     def __init__(self, db_pool: Pool):
         self.db_pool = db_pool
+
+    @staticmethod
+    def _row_to_schema(row: Record) -> Product:
+        return Product(**dict(row))
 
     async def create(self, data: ProductCreate) -> Product:
         query = f"""
@@ -25,7 +29,7 @@ class ProductRepository:
                 data.summary,
                 data.category_id,
             )
-        return Product(**dict(row))
+        return self._row_to_schema(row)
 
     async def get_all(self) -> List[Product]:
         query = f"""SELECT id, name, description, summary, category_id, is_deleted, created_at 
@@ -35,7 +39,7 @@ class ProductRepository:
         async with self.db_pool.acquire() as conn:
             rows = await conn.fetch(query)
 
-        return [Product(**dict(row)) for row in rows]
+        return [self._row_to_schema(row) for row in rows]
 
     async def get_by_id(self, product_id: int) -> Optional[Product]:
         query = f"""
@@ -45,7 +49,7 @@ class ProductRepository:
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(query, product_id)
 
-        return Product(**dict(row)) if row else None
+        return self._row_to_schema(row) if row else None
 
     async def update_one_by_id(
         self,
@@ -68,7 +72,7 @@ class ProductRepository:
                 data.summary,
                 product_id,
             )
-        return Product(**dict(row)) if row else None
+        return self._row_to_schema(row) if row else None
 
     async def delete_one_by_id(self, product_id: int) -> bool:
         query = f"DELETE FROM {self.table_name} WHERE id = $1 RETURNING id"
