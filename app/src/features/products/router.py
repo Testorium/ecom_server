@@ -1,8 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, BackgroundTasks
 from fastapi import status as status_code
 from src.routers.config import api_prefix_config
+
+from src.features.user_products.last_seen.deps import LastSeenProductServiceDep
 
 from .deps import ProductServiceDep
 from .schemas import (
@@ -37,10 +39,18 @@ async def get_all_products(
     response_model=Product,
 )
 async def get_one_product_by_id(
-    service: ProductServiceDep,
+    product_service: ProductServiceDep,
+    background_tasks: BackgroundTasks,
+    last_seen_service: LastSeenProductServiceDep,
     product_id: int = Path(..., ge=1),
 ) -> Product:
-    return await service.get_one_by_id(product_id=product_id)
+
+    # TODO: if there is a user
+    # if user:
+    #   background_tasks.add_task(last_seen_service._upsert, user.id, product_id)
+    background_tasks.add_task(last_seen_service._upsert, 1, product_id)
+
+    return await product_service.get_one_by_id(product_id=product_id)
 
 
 @router.delete("/{product_id}", status_code=status_code.HTTP_204_NO_CONTENT)
