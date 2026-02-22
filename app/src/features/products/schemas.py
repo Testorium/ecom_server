@@ -16,7 +16,6 @@ class Product(BaseSchema):
     summary: Optional[str] = None
     category_id: int
     is_archived: bool
-    is_deleted: bool
     created_at: datetime
 
 

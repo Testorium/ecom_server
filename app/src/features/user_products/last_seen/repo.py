@@ -76,26 +76,33 @@ class LastSeenProductRepository:
         """
 
         async with self.db_pool.acquire() as conn:
-            row = await conn.fetch(query)
+            rows = await conn.fetch(query)
 
-        print(row)
-        product = Product(
-            product_id=row["product_id"],
-            name=row["product_name"],
-            description=row["description"],
-            summary=row["product_summary"],
-            is_archived=row["is_archived"],
-            is_deleted=False,
-            created_at=row["created_at"],
-        )
+        result = []
 
-        category = Category(category_id=row["category_id"], name=row["category_name"])
+        for row in rows:
+            product = Product(
+                product_id=row["product_id"],
+                name=row["product_name"],
+                description=row["description"],
+                summary=row["product_summary"],
+                category_id=row["category_id"],
+                is_archived=row["is_archived"],
+                created_at=row["created_at"],
+            )
 
-        last_seen = LastSeenProduct(
-            last_seen_product_id=row["last_seen_product_id"],
-            last_seen_at=row["last_seen_at"],
-            product=product,
-            category=category,
-        )
+            category = Category(
+                category_id=row["category_id"],
+                name=row["category_name"],
+            )
 
-        return last_seen
+            last_seen = LastSeenProduct(
+                last_seen_product_id=row["last_seen_product_id"],
+                last_seen_at=row["last_seen_at"],
+                product=product,
+                category=category,
+            )
+
+            result.append(last_seen)
+
+        return result
