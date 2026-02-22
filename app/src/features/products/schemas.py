@@ -10,11 +10,12 @@ class Product(BaseSchema):
     Represents the product table in the database.
     """
 
-    id: int
+    product_id: int
     name: str
     description: Optional[str] = None
     summary: Optional[str] = None
     category_id: int
+    is_archived: bool
     is_deleted: bool
     created_at: datetime
 

@@ -1,4 +1,8 @@
+from typing import List
+
 from loguru import logger
+
+from .schemas import LastSeenProduct
 from .repo import LastSeenProductRepository
 
 
@@ -19,3 +23,6 @@ class LastSeenProductService:
 
         except Exception:
             logger.exception("Failed to create last seen product record.")
+
+    async def get_all(self) -> List[LastSeenProduct]:
+        return await self.repo.get_all()

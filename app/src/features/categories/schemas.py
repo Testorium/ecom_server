@@ -4,7 +4,7 @@ from src.schema import BaseSchema
 
 
 class Category(BaseSchema):
-    id: int
+    category_id: int
     name: str
     description: Optional[str] = None
     parent_id: Optional[int] = None
@@ -23,7 +23,7 @@ class CategoryUpdate(BaseSchema):
 
 
 class CategoryTree(BaseSchema):
-    id: int
+    category_id: int
     name: str
     description: Optional[str] = None
     parent_id: Optional[int] = None

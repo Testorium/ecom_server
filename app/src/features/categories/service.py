@@ -86,14 +86,14 @@ class CategoryService(BaseService):
         roots = []
 
         for item in items:
-            item_map[item["id"]] = {**item, "children": []}
+            item_map[item["category_id"]] = {**item, "children": []}
 
         for item in items:
             if item["parent_id"] in (None, 0):
-                roots.append(item_map[item["id"]])
+                roots.append(item_map[item["category_id"]])
             else:
                 parent = item_map.get(item["parent_id"])
                 if parent:
-                    parent["children"].append(item_map[item["id"]])
+                    parent["children"].append(item_map[item["category_id"]])
 
         return roots

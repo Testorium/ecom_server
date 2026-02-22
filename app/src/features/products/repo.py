@@ -6,7 +6,7 @@ from .schemas import Product, ProductCreate, ProductUpdate
 
 
 class ProductRepository:
-    table_name: str = "products"
+    """product_tab"""
 
     def __init__(self, db_pool: Pool):
         self.db_pool = db_pool
@@ -16,10 +16,10 @@ class ProductRepository:
         return Product(**dict(row))
 
     async def create(self, data: ProductCreate) -> Product:
-        query = f"""
-        INSERT INTO {self.table_name} (name, description, summary, category_id)
+        query = """
+        INSERT INTO product_tab (name, description, summary, category_id)
         VALUES ($1, $2, $3, $4)
-        RETURNING id, name, description, summary, category_id, is_deleted, created_at
+        RETURNING product_id, name, description, summary, category_id,  is_archived, is_deleted, created_at
         """
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(
@@ -32,8 +32,9 @@ class ProductRepository:
         return self._row_to_schema(row)
 
     async def get_all(self) -> List[Product]:
-        query = f"""SELECT id, name, description, summary, category_id, is_deleted, created_at 
-        FROM {self.table_name}
+        query = """
+        SELECT product_id, name, description, summary, category_id, is_deleted, is_archived, created_at 
+        FROM product_tab
         WHERE is_deleted = FALSE
         """
         async with self.db_pool.acquire() as conn:
@@ -42,9 +43,9 @@ class ProductRepository:
         return [self._row_to_schema(row) for row in rows]
 
     async def get_by_id(self, product_id: int) -> Optional[Product]:
-        query = f"""
-        SELECT id, name, description, summary, category_id, is_deleted, created_at
-        FROM {self.table_name} WHERE id = $1
+        query = """
+        SELECT product_id, name, description, summary, category_id, is_deleted, is_archived, created_at
+        FROM product_tab WHERE product_id = $1
         """
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(query, product_id)
@@ -56,13 +57,13 @@ class ProductRepository:
         product_id: int,
         data: ProductUpdate,
     ) -> Optional[Product]:
-        query = f"""
-        UPDATE {self.table_name}
+        query = """
+        UPDATE product_tab
         SET name = COALESCE($1, name),
             description = COALESCE($2, description),
             summary = COALESCE($3, summary)
-        WHERE id = $4 AND is_deleted IS FALSE
-        RETURNING id, name, description, summary, category_id, is_deleted, created_at
+        WHERE product_id = $4 AND is_deleted IS FALSE
+        RETURNING product_id, name, description, summary, category_id, is_deleted, is_archived, created_at
         """
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(
@@ -75,17 +76,17 @@ class ProductRepository:
         return self._row_to_schema(row) if row else None
 
     async def delete_one_by_id(self, product_id: int) -> bool:
-        query = f"DELETE FROM {self.table_name} WHERE id = $1 RETURNING id"
+        query = "DELETE FROM product_tab WHERE product_id = $1 RETURNING product_id"
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(query, product_id)
 
         return row is not None
 
     async def soft_delete_one_by_id(self, product_id: int) -> bool:
-        query = f"""UPDATE {self.table_name} 
+        query = """UPDATE product_tab 
             SET is_deleted = $1 
-            WHERE id = $2 
-            RETURNING id"""
+            WHERE product_id = $2 
+            RETURNING product_id"""
         async with self.db_pool.acquire() as conn:
             row = await conn.fetchrow(query, True, product_id)
 

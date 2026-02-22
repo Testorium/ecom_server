@@ -2,6 +2,7 @@ class APIV1PrefixConfig:
     prefix: str = "/v1"
     categories: str = "/categories"
     products: str = "/products"
+    last_seen_products: str = "/products/last-seen"
 
 
 class APIPrefixConfig:

@@ -1,0 +1,3 @@
+ISSUES:
+    ☐ Add FK constraint check for Category in product_tab
+    ☐ check category first in product create router
